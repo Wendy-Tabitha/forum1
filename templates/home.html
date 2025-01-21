@@ -1,0 +1,81 @@
+{{define "title"}}Home{{end}}
+
+{{define "content"}}
+<div class="container">
+    <div class="sidebar">
+        <div class="sidebar-section">
+            <h3>Categories</h3>
+            <ul class="category-list">
+                {{range .Categories}}
+                <li>
+                    <a href="/c/{{.Name}}" class="category-link">
+                        <i data-feather="hash"></i>
+                        {{.Name}}
+                    </a>
+                </li>
+                {{end}}
+            </ul>
+        </div>
+    </div>
+
+    <div class="posts-container">
+        {{if .User}}
+        <div class="create-post-card">
+            <a href="/posts/create" class="create-post-prompt">
+                <i data-feather="edit-3"></i>
+                Create Post
+            </a>
+        </div>
+        {{end}}
+
+        <div class="posts-list">
+            {{range .Posts}}
+            <article class="post-card">
+                <div class="vote-buttons">
+                    <button class="vote-btn upvote {{if .UserVoted}}voted{{end}}" data-post-id="{{.ID}}" data-vote="up">
+                        <i data-feather="arrow-up"></i>
+                    </button>
+                    <span class="vote-count">{{.Score}}</span>
+                    <button class="vote-btn downvote {{if .UserDownvoted}}voted{{end}}" data-post-id="{{.ID}}" data-vote="down">
+                        <i data-feather="arrow-down"></i>
+                    </button>
+                </div>
+
+                <div class="post-content">
+                    <div class="post-metadata">
+                        {{range .Categories}}
+                        <a href="/c/{{.}}" class="post-category">{{.}}</a>
+                        {{end}}
+                        <span class="post-author">Posted by u/{{.Username}}</span>
+                        <span class="post-time">{{formatTime .CreatedAt}}</span>
+                    </div>
+
+                    <h2 class="post-title">
+                        <a href="/posts/{{.ID}}">{{.Title}}</a>
+                    </h2>
+
+                    <div class="post-body">
+                        {{.Content}}
+                    </div>
+
+                    <div class="post-actions">
+                        <a href="/posts/{{.ID}}" class="post-action">
+                            <i data-feather="message-square"></i>
+                            {{.CommentCount}} Comments
+                        </a>
+                        <button class="post-action">
+                            <i data-feather="share-2"></i>
+                            Share
+                        </button>
+                        <button class="post-action">
+                            <i data-feather="bookmark"></i>
+                            Save
+                        </button>
+                    </div>
+                </div>
+            </article>
+            {{end}}
+        </div>
+    </div>
+</div>
+{{end}}

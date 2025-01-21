@@ -1,0 +1,114 @@
+-- Users table stores user account information
+CREATE TABLE users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    email TEXT NOT NULL UNIQUE,
+    username TEXT NOT NULL UNIQUE,
+    password_hash TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Sessions table for managing user authentication
+CREATE TABLE sessions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    session_uuid TEXT NOT NULL UNIQUE,
+    expires_at TIMESTAMP NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- Categories for organizing posts
+CREATE TABLE categories (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL UNIQUE,
+    description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Posts table for forum posts
+CREATE TABLE posts (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    title TEXT NOT NULL,
+    content TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- Table for managing post-category relationships
+CREATE TABLE post_categories (
+    post_id INTEGER NOT NULL,
+    category_id INTEGER NOT NULL,
+    PRIMARY KEY (post_id, category_id),
+    FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
+    FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE
+);
+
+-- Comments table for post comments
+CREATE TABLE comments (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    post_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    content TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- Reactions table for likes/dislikes on posts and comments
+CREATE TABLE reactions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    target_type TEXT NOT NULL CHECK (target_type IN ('post', 'comment')),
+    target_id INTEGER NOT NULL,
+    reaction_type TEXT NOT NULL CHECK (reaction_type IN ('like', 'dislike')),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    UNIQUE(user_id, target_type, target_id)
+);
+
+-- Example queries for common operations
+
+-- Insert a new user
+INSERT INTO users (email, username, password_hash) 
+VALUES ('user@example.com', 'username', 'hashed_password');
+
+-- Create a new session
+INSERT INTO sessions (user_id, session_uuid, expires_at)
+VALUES (1, 'generated-uuid', datetime('now', '+24 hours'));
+
+-- Create a new post with categories
+INSERT INTO posts (user_id, title, content)
+VALUES (1, 'Post Title', 'Post content');
+
+INSERT INTO post_categories (post_id, category_id)
+VALUES (1, 1);
+
+-- Get posts by category with reaction counts
+SELECT 
+    p.*,
+    u.username,
+    c.name as category_name,
+    (SELECT COUNT(*) FROM reactions r 
+     WHERE r.target_type = 'post' 
+     AND r.target_id = p.id 
+     AND r.reaction_type = 'like') as likes_count,
+    (SELECT COUNT(*) FROM reactions r 
+     WHERE r.target_type = 'post' 
+     AND r.target_id = p.id 
+     AND r.reaction_type = 'dislike') as dislikes_count
+FROM posts p
+JOIN users u ON p.user_id = u.id
+JOIN post_categories pc ON p.id = pc.post_id
+JOIN categories c ON pc.category_id = c.id
+WHERE c.id = ?;
+
+-- Get user's liked posts
+SELECT p.* 
+FROM posts p
+JOIN reactions r ON p.id = r.target_id
+WHERE r.user_id = ? 
+AND r.target_type = 'post'
+AND r.reaction_type = 'like';

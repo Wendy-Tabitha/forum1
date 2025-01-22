@@ -8,7 +8,6 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/gorilla/sessions"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -50,7 +49,6 @@ type Category struct {
 var (
 	templates *template.Template
 	db        *sql.DB
-	store     = sessions.NewCookieStore([]byte("your-secret-key")) // Replace with a secure key
 )
 
 func init() {
@@ -70,83 +68,100 @@ func init() {
 			return t.Format("Jan 02, 2006")
 		},
 	})
-	templates = template.Must(templates.ParseGlob("./templates/*.html"))
+	templates = template.Must(templates.ParseGlob("templates/*.html"))
 
 	// Insert default categories if they don't exist
 	insertDefaultCategories()
 }
 
 func CreateTables() {
-	queries := []string{
-		`CREATE TABLE IF NOT EXISTS users (
+	// Create users table
+	_, err := db.Exec(`
+		CREATE TABLE IF NOT EXISTS users (
 			id TEXT PRIMARY KEY,
-			email TEXT UNIQUE NOT NULL,
 			username TEXT UNIQUE NOT NULL,
-			password TEXT NOT NULL,
-			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-		)`,
-		`CREATE TABLE IF NOT EXISTS sessions (
-			id TEXT PRIMARY KEY,
-			user_id TEXT NOT NULL,
-			expires_at TIMESTAMP NOT NULL,
-			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-			FOREIGN KEY (user_id) REFERENCES users(id)
-		)`,
-		`CREATE TABLE IF NOT EXISTS posts (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			title TEXT NOT NULL,
-			content TEXT NOT NULL,
-			user_id TEXT NOT NULL,
-			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-			FOREIGN KEY (user_id) REFERENCES users(id)
-		)`,
-		`CREATE TABLE IF NOT EXISTS comments (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			content TEXT NOT NULL,
-			user_id TEXT NOT NULL,
-			post_id INTEGER NOT NULL,
-			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-			FOREIGN KEY (user_id) REFERENCES users(id),
-			FOREIGN KEY (post_id) REFERENCES posts(id)
-		)`,
-		`CREATE TABLE IF NOT EXISTS post_votes (
-			user_id TEXT NOT NULL,
-			post_id INTEGER NOT NULL,
-			value INTEGER NOT NULL,
-			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-			PRIMARY KEY (user_id, post_id),
-			FOREIGN KEY (user_id) REFERENCES users(id),
-			FOREIGN KEY (post_id) REFERENCES posts(id)
-		)`,
-		`CREATE TABLE IF NOT EXISTS comment_votes (
-			user_id TEXT NOT NULL,
-			comment_id INTEGER NOT NULL,
-			value INTEGER NOT NULL,
-			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-			PRIMARY KEY (user_id, comment_id),
-			FOREIGN KEY (user_id) REFERENCES users(id),
-			FOREIGN KEY (comment_id) REFERENCES comments(id)
-		)`,
-		`CREATE TABLE IF NOT EXISTS categories (
+			email TEXT UNIQUE NOT NULL,
+			password TEXT NOT NULL
+		)
+	`)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Create categories table
+	_, err = db.Exec(`
+		CREATE TABLE IF NOT EXISTS categories (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			name TEXT UNIQUE NOT NULL,
 			description TEXT,
 			color TEXT
-		)`,
-		`CREATE TABLE IF NOT EXISTS post_categories (
-			post_id INTEGER NOT NULL,
-			category_id INTEGER NOT NULL,
+		)
+	`)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Create posts table
+	_, err = db.Exec(`
+		CREATE TABLE IF NOT EXISTS posts (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			title TEXT NOT NULL,
+			content TEXT NOT NULL,
+			user_id TEXT NOT NULL,
+			score INTEGER DEFAULT 0,
+			created_at DATETIME NOT NULL,
+			FOREIGN KEY (user_id) REFERENCES users(id)
+		)
+	`)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Create post_categories table
+	_, err = db.Exec(`
+		CREATE TABLE IF NOT EXISTS post_categories (
+			post_id INTEGER,
+			category_id INTEGER,
 			PRIMARY KEY (post_id, category_id),
 			FOREIGN KEY (post_id) REFERENCES posts(id),
 			FOREIGN KEY (category_id) REFERENCES categories(id)
-		)`,
+		)
+	`)
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	for _, query := range queries {
-		_, err := db.Exec(query)
-		if err != nil {
-			log.Fatal(err)
-		}
+	// Create comments table
+	_, err = db.Exec(`
+		CREATE TABLE IF NOT EXISTS comments (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			content TEXT NOT NULL,
+			user_id TEXT NOT NULL,
+			post_id INTEGER NOT NULL,
+			score INTEGER DEFAULT 0,
+			created_at DATETIME NOT NULL,
+			FOREIGN KEY (user_id) REFERENCES users(id),
+			FOREIGN KEY (post_id) REFERENCES posts(id)
+		)
+	`)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Create votes table for both posts and comments
+	_, err = db.Exec(`
+		CREATE TABLE IF NOT EXISTS votes (
+			user_id TEXT NOT NULL,
+			target_id INTEGER NOT NULL,
+			target_type TEXT NOT NULL,
+			value INTEGER NOT NULL,
+			PRIMARY KEY (user_id, target_id, target_type),
+			FOREIGN KEY (user_id) REFERENCES users(id),
+			CHECK (value IN (-1, 1))
+		)
+	`)
+	if err != nil {
+		log.Fatal(err)
 	}
 }
 
@@ -196,17 +211,10 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get user from session if logged in
-	var user *User
-	session, _ := store.Get(r, "forum-session")
-	if userID, ok := session.Values["user_id"].(string); ok {
-		user, _ = GetUserByID(userID)
-	}
-
 	data := PageData{
 		Categories: categories,
 		Posts:      posts,
-		User:       user,
+		User:       nil,
 	}
 
 	err = templates.ExecuteTemplate(w, "layout.html", data)

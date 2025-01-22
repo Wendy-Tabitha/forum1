@@ -8,6 +8,7 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/gorilla/sessions"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -18,15 +19,17 @@ type PageData struct {
 }
 
 type User struct {
-	ID       int
+	ID       string
+	Email    string
 	Username string
+	Password string
 }
 
 type Post struct {
 	ID            int
 	Title         string
 	Content       string
-	UserID        int
+	UserID        string
 	Username      string
 	Score         int
 	CommentCount  int
@@ -47,6 +50,7 @@ type Category struct {
 var (
 	templates *template.Template
 	db        *sql.DB
+	store     = sessions.NewCookieStore([]byte("your-secret-key")) // Replace with a secure key
 )
 
 func init() {
@@ -66,67 +70,83 @@ func init() {
 			return t.Format("Jan 02, 2006")
 		},
 	})
-	templates = template.Must(templates.ParseGlob("templates/*.html"))
+	templates = template.Must(templates.ParseGlob("./templates/*.html"))
 
 	// Insert default categories if they don't exist
 	insertDefaultCategories()
 }
 
 func CreateTables() {
-	// Users table
-	_, err := db.Exec(`
-		CREATE TABLE IF NOT EXISTS users (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
+	queries := []string{
+		`CREATE TABLE IF NOT EXISTS users (
+			id TEXT PRIMARY KEY,
+			email TEXT UNIQUE NOT NULL,
 			username TEXT UNIQUE NOT NULL,
+			password TEXT NOT NULL,
 			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-		)
-	`)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// Categories table
-	_, err = db.Exec(`
-		CREATE TABLE IF NOT EXISTS categories (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			name TEXT UNIQUE NOT NULL,
-			description TEXT,
-			color TEXT DEFAULT '#3498db',
-			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-		)
-	`)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// Posts table
-	_, err = db.Exec(`
-		CREATE TABLE IF NOT EXISTS posts (
+		)`,
+		`CREATE TABLE IF NOT EXISTS sessions (
+			id TEXT PRIMARY KEY,
+			user_id TEXT NOT NULL,
+			expires_at TIMESTAMP NOT NULL,
+			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+			FOREIGN KEY (user_id) REFERENCES users(id)
+		)`,
+		`CREATE TABLE IF NOT EXISTS posts (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			title TEXT NOT NULL,
 			content TEXT NOT NULL,
-			user_id INTEGER,
-			score INTEGER DEFAULT 0,
+			user_id TEXT NOT NULL,
 			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 			FOREIGN KEY (user_id) REFERENCES users(id)
-		)
-	`)
-	if err != nil {
-		log.Fatal(err)
+		)`,
+		`CREATE TABLE IF NOT EXISTS comments (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			content TEXT NOT NULL,
+			user_id TEXT NOT NULL,
+			post_id INTEGER NOT NULL,
+			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+			FOREIGN KEY (user_id) REFERENCES users(id),
+			FOREIGN KEY (post_id) REFERENCES posts(id)
+		)`,
+		`CREATE TABLE IF NOT EXISTS post_votes (
+			user_id TEXT NOT NULL,
+			post_id INTEGER NOT NULL,
+			value INTEGER NOT NULL,
+			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+			PRIMARY KEY (user_id, post_id),
+			FOREIGN KEY (user_id) REFERENCES users(id),
+			FOREIGN KEY (post_id) REFERENCES posts(id)
+		)`,
+		`CREATE TABLE IF NOT EXISTS comment_votes (
+			user_id TEXT NOT NULL,
+			comment_id INTEGER NOT NULL,
+			value INTEGER NOT NULL,
+			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+			PRIMARY KEY (user_id, comment_id),
+			FOREIGN KEY (user_id) REFERENCES users(id),
+			FOREIGN KEY (comment_id) REFERENCES comments(id)
+		)`,
+		`CREATE TABLE IF NOT EXISTS categories (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			name TEXT UNIQUE NOT NULL,
+			description TEXT,
+			color TEXT
+		)`,
+		`CREATE TABLE IF NOT EXISTS post_categories (
+			post_id INTEGER NOT NULL,
+			category_id INTEGER NOT NULL,
+			PRIMARY KEY (post_id, category_id),
+			FOREIGN KEY (post_id) REFERENCES posts(id),
+			FOREIGN KEY (category_id) REFERENCES categories(id)
+		)`,
 	}
 
-	// Post categories junction table
-	_, err = db.Exec(`
-		CREATE TABLE IF NOT EXISTS post_categories (
-			post_id INTEGER,
-			category_id INTEGER,
-			FOREIGN KEY (post_id) REFERENCES posts(id),
-			FOREIGN KEY (category_id) REFERENCES categories(id),
-			PRIMARY KEY (post_id, category_id)
-		)
-	`)
-	if err != nil {
-		log.Fatal(err)
+	for _, query := range queries {
+		_, err := db.Exec(query)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 }
 
@@ -176,9 +196,17 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Get user from session if logged in
+	var user *User
+	session, _ := store.Get(r, "forum-session")
+	if userID, ok := session.Values["user_id"].(string); ok {
+		user, _ = GetUserByID(userID)
+	}
+
 	data := PageData{
 		Categories: categories,
 		Posts:      posts,
+		User:       user,
 	}
 
 	err = templates.ExecuteTemplate(w, "layout.html", data)
@@ -262,4 +290,16 @@ func GetRecentPosts() ([]Post, error) {
 		posts = append(posts, p)
 	}
 	return posts, nil
+}
+
+func GetUserByID(id string) (*User, error) {
+	var user User
+	err := db.QueryRow("SELECT id, username, email FROM users WHERE id = ?", id).Scan(&user.ID, &user.Username, &user.Email)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &user, nil
 }

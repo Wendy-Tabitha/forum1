@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Page</title>
     <link rel="stylesheet" href="/static/style.css">
-    <!-- <link rel="stylesheet" href="/static/css/user.css"> -->
+    <link rel="stylesheet" href="/static/css/user.css">
+    <script src="https://unpkg.com/feather-icons"></script>
 </head>
 <body>
     <header class="header">
@@ -16,15 +17,62 @@
                 <input type="text" placeholder="Search">
             </div>
             <nav class="nav-links">
-                <a href="/posts/create" class="create-post-btn">Create Post</a>
+                <button onclick="openCreatePostModal()" class="create-post-btn">
+                    <i data-feather="plus-circle"></i>
+                    Create Post
+                </button>
                 <div class="user-menu">
                     <i data-feather="user"></i>
-                    <a href="/settings" class="settings-link">Settings</a>
                 </div>
             </nav>
         </div>
     </header>
-    <div class="container">
+
+    <!-- Create Post Modal -->
+    <div id="createPostModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Create New Post</h2>
+                <span class="close" onclick="closeCreatePostModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="createPostForm" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="title">Title</label>
+                        <input type="text" id="title" name="title" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="content">Content</label>
+                        <textarea id="content" name="content" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="image">Image</label>
+                        <input type="file" id="image" name="image" accept="image/*">
+                        <div id="imagePreview"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="category">Category</label>
+                        <select id="category" name="category" required>
+                            <option value="">Select a category</option>
+                            <option value="general">General</option>
+                            <option value="technology">Technology</option>
+                            <option value="lifestyle">Lifestyle</option>
+                            <option value="entertainment">Entertainment</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" onclick="closeCreatePostModal()" class="cancel-btn">Cancel</button>
+                        <button type="submit" class="submit-btn">Post</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
         <div class="sidebar">
             <div class="sidebar-section">
                 <h3>Categories</h3>
@@ -35,12 +83,78 @@
                     <li><a href="/c/entertainment" class="category-link"><i data-feather="hash"></i>Entertainment</a></li>
                 </ul>
             </div>
+            <div class="sidebar-footer">
+                <a href="/settings" class="sidebar-link">
+                    <i data-feather="settings"></i>
+                    Settings
+                </a>
+                <a href="/logout" class="sidebar-link logout-link">
+                    <i data-feather="log-out"></i>
+                    Logout
+                </a>
+            </div>
         </div>
-        <div class="main-content">
-            <h1>Welcome, User!</h1>
-            <p>You are already logged in.</p>
-            <button onclick="location.href='/createpost'">Create Post</button>
-        </div>
-    </div>
+
+    <script>
+        // Initialize Feather icons
+        document.addEventListener('DOMContentLoaded', function() {
+            feather.replace();
+        });
+
+        // Modal functions
+        function openCreatePostModal() {
+            document.getElementById('createPostModal').style.display = 'block';
+        }
+
+        function closeCreatePostModal() {
+            document.getElementById('createPostModal').style.display = 'none';
+        }
+
+        // Image preview
+        document.getElementById('image').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('imagePreview');
+                    preview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Form submission
+        document.getElementById('createPostForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            
+            try {
+                const response = await fetch('/posts/create', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    // Close modal and refresh page to show new post
+                    closeCreatePostModal();
+                    window.location.href = '/';
+                } else {
+                    throw new Error('Failed to create post');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to create post. Please try again.');
+            }
+        });
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('createPostModal');
+            if (event.target == modal) {
+                closeCreatePostModal();
+            }
+        }
+    </script>
 </body>
 </html>

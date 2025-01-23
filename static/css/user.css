@@ -1,0 +1,38 @@
+/* CSS for user.html */
+
+.container {
+    max-width: 600px;
+    margin: 50px auto;
+    margin-top: 150px;
+    margin-bottom: 100px;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 10px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+}
+
+p {
+    text-align: center;
+    color: #666;
+}
+
+button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    background-color: #FF4500;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+button:hover {
+    background-color: #c76b4a;
+}

@@ -75,93 +75,76 @@ func init() {
 }
 
 func CreateTables() {
-	// Create users table
-	_, err := db.Exec(`
-		CREATE TABLE IF NOT EXISTS users (
+	queries := []string{
+		`CREATE TABLE IF NOT EXISTS users (
 			id TEXT PRIMARY KEY,
-			username TEXT UNIQUE NOT NULL,
 			email TEXT UNIQUE NOT NULL,
-			password TEXT NOT NULL
-		)
-	`)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// Create categories table
-	_, err = db.Exec(`
-		CREATE TABLE IF NOT EXISTS categories (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			name TEXT UNIQUE NOT NULL,
-			description TEXT,
-			color TEXT
-		)
-	`)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// Create posts table
-	_, err = db.Exec(`
-		CREATE TABLE IF NOT EXISTS posts (
+			username TEXT UNIQUE NOT NULL,
+			password TEXT NOT NULL,
+			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+		)`,
+		`CREATE TABLE IF NOT EXISTS sessions (
+			id TEXT PRIMARY KEY,
+			user_id TEXT NOT NULL,
+			expires_at TIMESTAMP NOT NULL,
+			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+			FOREIGN KEY (user_id) REFERENCES users(id)
+		)`,
+		`CREATE TABLE IF NOT EXISTS posts (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			title TEXT NOT NULL,
 			content TEXT NOT NULL,
 			user_id TEXT NOT NULL,
-			score INTEGER DEFAULT 0,
-			created_at DATETIME NOT NULL,
+			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 			FOREIGN KEY (user_id) REFERENCES users(id)
-		)
-	`)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// Create post_categories table
-	_, err = db.Exec(`
-		CREATE TABLE IF NOT EXISTS post_categories (
-			post_id INTEGER,
-			category_id INTEGER,
-			PRIMARY KEY (post_id, category_id),
-			FOREIGN KEY (post_id) REFERENCES posts(id),
-			FOREIGN KEY (category_id) REFERENCES categories(id)
-		)
-	`)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// Create comments table
-	_, err = db.Exec(`
-		CREATE TABLE IF NOT EXISTS comments (
+		)`,
+		`CREATE TABLE IF NOT EXISTS comments (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			content TEXT NOT NULL,
 			user_id TEXT NOT NULL,
 			post_id INTEGER NOT NULL,
-			score INTEGER DEFAULT 0,
-			created_at DATETIME NOT NULL,
+			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 			FOREIGN KEY (user_id) REFERENCES users(id),
 			FOREIGN KEY (post_id) REFERENCES posts(id)
-		)
-	`)
-	if err != nil {
-		log.Fatal(err)
+		)`,
+		`CREATE TABLE IF NOT EXISTS post_votes (
+			user_id TEXT NOT NULL,
+			post_id INTEGER NOT NULL,
+			value INTEGER NOT NULL,
+			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+			PRIMARY KEY (user_id, post_id),
+			FOREIGN KEY (user_id) REFERENCES users(id),
+			FOREIGN KEY (post_id) REFERENCES posts(id)
+		)`,
+		`CREATE TABLE IF NOT EXISTS comment_votes (
+			user_id TEXT NOT NULL,
+			comment_id INTEGER NOT NULL,
+			value INTEGER NOT NULL,
+			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+			PRIMARY KEY (user_id, comment_id),
+			FOREIGN KEY (user_id) REFERENCES users(id),
+			FOREIGN KEY (comment_id) REFERENCES comments(id)
+		)`,
+		`CREATE TABLE IF NOT EXISTS categories (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			name TEXT UNIQUE NOT NULL,
+			description TEXT,
+			color TEXT
+		)`,
+		`CREATE TABLE IF NOT EXISTS post_categories (
+			post_id INTEGER NOT NULL,
+			category_id INTEGER NOT NULL,
+			PRIMARY KEY (post_id, category_id),
+			FOREIGN KEY (post_id) REFERENCES posts(id),
+			FOREIGN KEY (category_id) REFERENCES categories(id)
+		)`,
 	}
 
-	// Create votes table for both posts and comments
-	_, err = db.Exec(`
-		CREATE TABLE IF NOT EXISTS votes (
-			user_id TEXT NOT NULL,
-			target_id INTEGER NOT NULL,
-			target_type TEXT NOT NULL,
-			value INTEGER NOT NULL,
-			PRIMARY KEY (user_id, target_id, target_type),
-			FOREIGN KEY (user_id) REFERENCES users(id),
-			CHECK (value IN (-1, 1))
-		)
-	`)
-	if err != nil {
-		log.Fatal(err)
+	for _, query := range queries {
+		_, err := db.Exec(query)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 }
 
@@ -214,13 +197,12 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 	data := PageData{
 		Categories: categories,
 		Posts:      posts,
-		User:       nil,
 	}
 
 	err = templates.ExecuteTemplate(w, "layout.html", data)
 	if err != nil {
 		log.Printf("Template execution error: %v", err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		// http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 }
@@ -298,16 +280,4 @@ func GetRecentPosts() ([]Post, error) {
 		posts = append(posts, p)
 	}
 	return posts, nil
-}
-
-func GetUserByID(id string) (*User, error) {
-	var user User
-	err := db.QueryRow("SELECT id, username, email FROM users WHERE id = ?", id).Scan(&user.ID, &user.Username, &user.Email)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, nil
-		}
-		return nil, err
-	}
-	return &user, nil
 }

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Page</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <!-- <link rel="stylesheet" href="/static/css/user.css"> -->
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <a href="/" class="logo">Forum</a>
+            <div class="search-bar">
+                <i data-feather="search"></i>
+                <input type="text" placeholder="Search">
+            </div>
+            <nav class="nav-links">
+                <a href="/posts/create" class="create-post-btn">Create Post</a>
+                <div class="user-menu">
+                    <i data-feather="user"></i>
+                    <a href="/settings" class="settings-link">Settings</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+    <div class="container">
+        <div class="sidebar">
+            <div class="sidebar-section">
+                <h3>Categories</h3>
+                <ul class="category-list">
+                    <li><a href="/c/general" class="category-link"><i data-feather="hash"></i>General</a></li>
+                    <li><a href="/c/technology" class="category-link"><i data-feather="hash"></i>Technology</a></li>
+                    <li><a href="/c/lifestyle" class="category-link"><i data-feather="hash"></i>Lifestyle</a></li>
+                    <li><a href="/c/entertainment" class="category-link"><i data-feather="hash"></i>Entertainment</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="main-content">
+            <h1>Welcome, User!</h1>
+            <p>You are already logged in.</p>
+            <button onclick="location.href='/createpost'">Create Post</button>
+        </div>
+    </div>
+</body>
+</html>

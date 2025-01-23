@@ -36,3 +36,337 @@ button {
 button:hover {
     background-color: #c76b4a;
 }
+
+/* Navigation Links Styles */
+.create-post-btn, .settings-link, .logout-link {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 16px;
+    color: white;
+    text-decoration: none;
+    font-size: 14px;
+    border-radius: 20px;
+    transition: background-color 0.3s ease;
+    gap: 8px;
+}
+
+.create-post-btn, .logout-link {
+    background-color: #FF4500;
+}
+
+.create-post-btn:hover {
+    background-color: #c76b4a;
+}
+
+.logout-link:hover {
+    background-color: #c76b4a;
+}
+
+.settings-link {
+    background-color: #1a1a1a;
+}
+
+.settings-link:hover {
+    background-color: #333;
+}
+
+/* Icon alignment */
+.create-post-btn i, .settings-link i, .logout-link i {
+    width: 16px;
+    height: 16px;
+}
+
+/* Nav links container */
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+/* User menu styling */
+.user-menu {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Modal styles */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    overflow-y: auto;
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: 20px auto;
+    padding: 20px;
+    width: 90%;
+    max-width: 600px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    position: relative;
+}
+
+.modal-header {
+    position: sticky;
+    top: 0;
+    background-color: #fff;
+    z-index: 1001;
+    padding: 15px 0;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.close {
+    color: #aaa;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover {
+    color: #333;
+}
+
+.modal-body {
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+/* Customize scrollbar */
+.modal-body::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Form styles */
+.form-group {
+    margin-bottom: 20px;
+    padding: 0 5px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.form-group input[type="text"],
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.form-group textarea {
+    height: 150px;
+    resize: vertical;
+}
+
+#imagePreview {
+    margin: 10px 0;
+    max-height: 300px;
+    overflow: hidden;
+    border-radius: 4px;
+}
+
+#imagePreview img {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+}
+
+.form-actions {
+    position: sticky;
+    bottom: 0;
+    background-color: #fff;
+    padding: 15px 0;
+    margin-top: 20px;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.cancel-btn,
+.submit-btn {
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.cancel-btn {
+    background: none;
+    border: 1px solid #ddd;
+    color: black;
+}
+
+.submit-btn {
+    background-color: #FF4500;
+    color: white;
+    border: none;
+}
+
+.submit-btn:hover {
+    background-color: #c76b4a;
+}
+
+/* Responsive adjustments */
+@media (max-height: 600px) {
+    .modal-content {
+        margin: 10px auto;
+    }
+    
+    .modal-body {
+        max-height: calc(100vh - 150px);
+    }
+}
+
+@media (max-width: 480px) {
+    .modal-content {
+        width: 95%;
+        margin: 10px auto;
+    }
+    
+    .form-actions {
+        padding: 10px 0;
+    }
+}
+
+/* Add these styles for the sidebar footer */
+.sidebar {
+    position: relative;
+    min-height: calc(100vh - 60px); /* Adjust based on your header height */
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-right: 1px solid #eee;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-section {
+    flex-grow: 1;
+}
+
+.sidebar-footer {
+    margin-top: auto;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    color: #333;
+    text-decoration: none;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    transition: background-color 0.3s ease;
+}
+
+.sidebar-link i {
+    width: 18px;
+    height: 18px;
+    margin-right: 12px;
+}
+
+.sidebar-link:hover {
+    background-color: #f0f0f0;
+}
+
+.logout-link {
+    color: #ff4444;
+    color: white;
+}
+
+.logout-link:hover {
+    background-color: #c76b4a;
+}
+
+/* Update container and sidebar layout */
+.container {
+    display: flex;
+    margin-top: 60px; /* Adjust based on your header height */
+}
+
+.sidebar {
+    width: 250px;
+    position: fixed;
+    left: 0;
+    top: 0; /* Should match margin-top of container */
+    bottom: 0;
+    padding-top: 100px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 200px;
+    }
+    
+    .sidebar-link {
+        padding: 10px 12px;
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 576px) {
+    .sidebar {
+        position: fixed;
+        left: -250px;
+        transition: left 0.3s ease;
+        z-index: 1000;
+        background: white;
+        box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    }
+
+    .sidebar.active {
+        left: 0;
+    }
+}
+
+/* Update category list styles */
+.category-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.category-list li {
+    margin: 0;
+    padding: 0;
+}
+
+.category-list .sidebar-link {
+    padding: 8px 16px;
+    margin-bottom: 2px;
+}

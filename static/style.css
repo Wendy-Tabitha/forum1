@@ -92,6 +92,10 @@ body {
     color: white;
 }
 
+.register-btn:hover {
+    background-color: #18c7b2;
+}
+
 .main-content {
     margin-top: 64px;
     min-height: calc(100vh - 64px);

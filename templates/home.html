@@ -9,7 +9,6 @@
             <ul class="category-list">
                 {{range .Categories}}
                 <li><a href="/c/{{.Name}}" class="sidebar-link">
-                    <i data-feather="hash"></i>
                     {{.Name}}
                 </a></li>
                 {{end}}
@@ -17,11 +16,9 @@
         </div>
         <div class="sidebar-footer">
             <a href="/settings" class="sidebar-link">
-                <i data-feather="settings"></i>
                 Settings
             </a>
             <a href="/logout" class="sidebar-link logout-link">
-                <i data-feather="log-out"></i>
                 Logout
             </a>
         </div>

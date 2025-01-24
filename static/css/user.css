@@ -25,7 +25,7 @@ button {
     display: block;
     width: 100%;
     padding: 10px;
-    background-color: #FF4500;
+    background-color: #09b6a2;
     color: white;
     border: none;
     border-radius: 5px;
@@ -34,7 +34,7 @@ button {
 }
 
 button:hover {
-    background-color: #c76b4a;
+    background-color: #18c7b2;
 }
 
 /* Navigation Links Styles */
@@ -51,15 +51,15 @@ button:hover {
 }
 
 .create-post-btn, .logout-link {
-    background-color: #FF4500;
+    background-color: #09b6a2;
 }
 
 .create-post-btn:hover {
-    background-color: #c76b4a;
+    background-color: #18c7b2;
 }
 
 .logout-link:hover {
-    background-color: #c76b4a;
+    background-color: #18c7b2;
 }
 
 .settings-link {
@@ -230,13 +230,13 @@ button:hover {
 }
 
 .submit-btn {
-    background-color: #FF4500;
+    background-color: #09b6a2;
     color: white;
     border: none;
 }
 
 .submit-btn:hover {
-    background-color: #c76b4a;
+    background-color: #18c7b2;
 }
 
 /* Responsive adjustments */
@@ -304,12 +304,12 @@ button:hover {
 }
 
 .logout-link {
-    color: #ff4444;
+    color: #09b6a2;
     color: white;
 }
 
 .logout-link:hover {
-    background-color: #c76b4a;
+    background-color: #18c7b2;
 }
 
 /* Update container and sidebar layout */

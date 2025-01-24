@@ -25,17 +25,17 @@ body {
     padding: 1.5rem 1rem 0.5rem;
 }
 .btn-primary {
-    background-color: #FF4500;
-    border-color: #FF4500;
+    background-color: #09b6a2;
+    border-color: #09b6a2;
     padding: 0.75rem;
     font-size: 1rem;
 }
 .btn-primary:hover {
-    background-color: #da5f33;
-    border-color: #da5f33;
+    background-color: #18c7b2;
+    border-color: #18c7b2;
 }
 .form-control:focus {
-    border-color: #da5f33;
+    border-color: #10ac99;
     box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
 }
 .alert {

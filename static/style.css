@@ -1,11 +1,11 @@
 :root {
-    --primary-color: #FF4500;
+    --primary-color: #09b6a2;
     --background-color: #DAE0E6;
     --card-background: #FFFFFF;
     --text-primary: #1A1A1B;
     --text-secondary: #787C7E;
     --border-color: #EDEFF1;
-    --upvote-color: #FF4500;
+    --upvote-color: #09b6a2;
     --downvote-color: #7193FF;
 }
 

@@ -2,10 +2,11 @@ package handlers
 
 import (
 	"database/sql"
+	"html/template"
+	htmltemplate "html/template"
 	"log"
 	"net/http"
 	"strings"
-	"text/template"
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -46,11 +47,6 @@ type Category struct {
 	Color       string
 }
 
-var (
-	templates *template.Template
-	db        *sql.DB
-)
-
 func init() {
 	var err error
 	// Initialize database
@@ -61,14 +57,13 @@ func init() {
 
 	// Create tables if they don't exist
 	CreateTables()
-
 	// Parse templates
-	templates = template.New("").Funcs(template.FuncMap{
+	templates = htmltemplate.New("").Funcs(template.FuncMap{
 		"formatTime": func(t time.Time) string {
 			return t.Format("Jan 02, 2006")
 		},
 	})
-	templates = template.Must(templates.ParseGlob("templates/*.html"))
+	templates = htmltemplate.Must(templates.ParseGlob("templates/*.html"))
 
 	// Insert default categories if they don't exist
 	insertDefaultCategories()
@@ -76,13 +71,14 @@ func init() {
 
 func CreateTables() {
 	queries := []string{
+		`DROP TABLE IF EXISTS users;`,
 		`CREATE TABLE IF NOT EXISTS users (
 			id TEXT PRIMARY KEY,
 			email TEXT UNIQUE NOT NULL,
 			username TEXT UNIQUE NOT NULL,
 			password TEXT NOT NULL,
-			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-		)`,
+			created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		);`,
 		`CREATE TABLE IF NOT EXISTS sessions (
 			id TEXT PRIMARY KEY,
 			user_id TEXT NOT NULL,
@@ -95,6 +91,7 @@ func CreateTables() {
 			title TEXT NOT NULL,
 			content TEXT NOT NULL,
 			user_id TEXT NOT NULL,
+			score INTEGER DEFAULT 0,
 			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 			FOREIGN KEY (user_id) REFERENCES users(id)
 		)`,
@@ -143,7 +140,8 @@ func CreateTables() {
 	for _, query := range queries {
 		_, err := db.Exec(query)
 		if err != nil {
-			log.Fatal(err)
+			log.Printf("Table creation error: %v", err)
+			log.Fatal(query)
 		}
 	}
 }
@@ -245,7 +243,7 @@ func GetRecentPosts() ([]Post, error) {
 			p.content,
 			p.user_id,
 			u.username,
-			p.score,
+			0 as score,
 			p.created_at,
 			(
 				SELECT GROUP_CONCAT(c.name)

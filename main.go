@@ -24,9 +24,8 @@ func main() {
 	http.HandleFunc("/register", handlers.RegisterHandler)
 	http.HandleFunc("/logout", handlers.LogoutHandler)
 	// http.HandleFunc("/post/", handlers.PostHandler)
-	http.HandleFunc("/user/", handlers.UserHandler)
+	http.HandleFunc("/user", handlers.UserHandler)
 	// http.HandleFunc("/comment/", handlers.CommentHandler)
-	
 
 	// Start the server
 	log.Println("Server starting on :8082")

@@ -15,87 +15,88 @@
                 <input type="text" placeholder="Search">
             </div>
             <nav class="nav-links">
-                <button onclick="openCreatePostModal()" class="create-post-btn">
+                <button onclick="showCreatePostForm()" class="create-post-btn">
                     Create Post
                 </button>
             </nav>
         </div>
     </header>
 
-    <!-- Create Post Modal -->
-    <div id="createPostModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Create New Post</h2>
-                <span class="close" onclick="closeCreatePostModal()">&times;</span>
-            </div>
-            <div class="modal-body">
-                <form id="createPostForm" enctype="multipart/form-data">
-                    <div class="form-group">
-                        <label for="title">Title</label>
-                        <input type="text" id="title" name="title" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="content">Content</label>
-                        <textarea id="content" name="content" required></textarea>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="image">Image</label>
-                        <input type="file" id="image" name="image" accept="image/*">
-                        <div id="imagePreview"></div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="category">Category</label>
-                        <select id="category" name="category" required>
-                            <option value="">Select a category</option>
-                            <option value="general">General</option>
-                            <option value="technology">Technology</option>
-                            <option value="lifestyle">Lifestyle</option>
-                            <option value="entertainment">Entertainment</option>
-                            <option value="gaming">Gaming</option>
-                            <option value="food">Food</option>
-                            <option value="business">Business</option>
-                            <option value="health">Health</option>
-                            <option value="religion">Religion</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-actions">
-                        <button type="button" onclick="closeCreatePostModal()" class="cancel-btn">Cancel</button>
-                        <button type="submit" class="submit-btn">Post</button>
-                    </div>
-                </form>
-            </div>
+    <!-- Main Content Area -->
+    <div class="main-content">
+        <!-- Create Post Form (Initially Hidden) -->
+        <div id="createPostFormContainer" style="display: none;">
+            <h2>Create New Post</h2>
+            <form id="createPostForm" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="title">Title</label>
+                    <input type="text" id="title" name="title" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="content">Content</label>
+                    <textarea id="content" name="content" required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="image">Image</label>
+                    <input type="file" id="image" name="image" accept="image/*">
+                    <div id="imagePreview"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="category">Category</label>
+                    <select id="category" name="category" required>
+                        <option value="">Select a category</option>
+                        <option value="general">General</option>
+                        <option value="technology">Technology</option>
+                        <option value="lifestyle">Lifestyle</option>
+                        <option value="entertainment">Entertainment</option>
+                        <option value="gaming">Gaming</option>
+                        <option value="food">Food</option>
+                        <option value="business">Business</option>
+                        <option value="health">Health</option>
+                        <option value="religion">Religion</option>
+                    </select>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" onclick="hideCreatePostForm()" class="cancel-btn">Cancel</button>
+                    <button type="submit" class="submit-btn">Post</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Existing Posts or Other Content -->
+        <div id="postsContainer">
+            <!-- Posts will be displayed here -->
         </div>
     </div>
 
-        <div class="sidebar">
-            <div class="sidebar-section">
-                <h3>Categories</h3>
-                <ul class="category-list">
-                    <li><a href="/c/general" class="sidebar-link">General</a></li>
-                    <li><a href="/c/technology" class="sidebar-link">Technology</a></li>
-                    <li><a href="/c/lifestyle" class="sidebar-link">Lifestyle</a></li>
-                    <li><a href="/c/entertainment" class="sidebar-link">Entertainment</a></li>
-                    <li><a href="/c/gaming" class="sidebar-link">Gaming</a></li>
-                    <li><a href="/c/food" class="sidebar-link">Food</a></li>
-                    <li><a href="/c/business" class="sidebar-link">Business</a></li>
-                    <li><a href="/c/health" class="sidebar-link">Health</a></li>
-                    <li><a href="/c/religion" class="sidebar-link">Religion</a></li>
-                </ul>
-            </div>
-            <div class="sidebar-footer">
-                <a href="/settings" class="sidebar-link">
-                    Settings
-                </a>
-                <a href="/logout" class="sidebar-link logout-link">
-                    Logout
-                </a>
-            </div>
+    <div class="sidebar">
+        <div class="sidebar-section">
+            <h3>Categories</h3>
+            <ul class="category-list">
+                <li><a href="/c/general" class="sidebar-link">General</a></li>
+                <li><a href="/c/technology" class="sidebar-link">Technology</a></li>
+                <li><a href="/c/lifestyle" class="sidebar-link">Lifestyle</a></li>
+                <li><a href="/c/entertainment" class="sidebar-link">Entertainment</a></li>
+                <li><a href="/c/gaming" class="sidebar-link">Gaming</a></li>
+                <li><a href="/c/food" class="sidebar-link">Food</a></li>
+                <li><a href="/c/business" class="sidebar-link">Business</a></li>
+                <li><a href="/c/health" class="sidebar-link">Health</a></li>
+                <li><a href="/c/religion" class="sidebar-link">Religion</a></li>
+            </ul>
         </div>
+        <div class="sidebar-footer">
+            <a href="/settings" class="sidebar-link">
+                Settings
+            </a>
+            <a href="/logout" class="sidebar-link logout-link">
+                Logout
+            </a>
+        </div>
+    </div>
 
     <script>
         // Initialize Feather icons
@@ -103,13 +104,13 @@
             feather.replace();
         });
 
-        // Modal functions
-        function openCreatePostModal() {
-            document.getElementById('createPostModal').style.display = 'block';
+        // Show/Hide Create Post Form
+        function showCreatePostForm() {
+            document.getElementById('createPostFormContainer').style.display = 'block';
         }
 
-        function closeCreatePostModal() {
-            document.getElementById('createPostModal').style.display = 'none';
+        function hideCreatePostForm() {
+            document.getElementById('createPostFormContainer').style.display = 'none';
         }
 
         // Image preview
@@ -138,8 +139,8 @@
                 });
                 
                 if (response.ok) {
-                    // Close modal and refresh page to show new post
-                    closeCreatePostModal();
+                    // Hide form and refresh page to show new post
+                    hideCreatePostForm();
                     window.location.href = '/';
                 } else {
                     throw new Error('Failed to create post');
@@ -149,14 +150,6 @@
                 alert('Failed to create post. Please try again.');
             }
         });
-
-        // Close modal when clicking outside
-        window.onclick = function(event) {
-            const modal = document.getElementById('createPostModal');
-            if (event.target == modal) {
-                closeCreatePostModal();
-            }
-        }
     </script>
 </body>
 </html>

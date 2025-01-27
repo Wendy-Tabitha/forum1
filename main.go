@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
@@ -28,6 +29,7 @@ func main() {
 	// http.HandleFunc("/comment/", handlers.CommentHandler)
 
 	// Start the server
-	log.Println("Server starting on :8082")
-	log.Fatal(http.ListenAndServe(":8082", nil))
+	port := ":8082"
+	fmt.Printf("Server is running on http://localhost%s\n", port)
+	log.Fatal(http.ListenAndServe(port, nil))
 }

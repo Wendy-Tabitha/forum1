@@ -1,172 +1,94 @@
-/* CSS for user.html */
-
-.container {
-    max-width: 600px;
-    margin: 50px auto;
-    margin-top: 150px;
-    margin-bottom: 100px;
-    padding: 20px;
-    background-color: #fff;
-    box-shadow: 0 10px 10px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-}
-
-h1 {
-    text-align: center;
+/* General Styles */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f8f9fa;
     color: #333;
 }
 
-p {
-    text-align: center;
-    color: #666;
-}
-
-button {
-    display: block;
+/* Header Styles */
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
     width: 100%;
-    padding: 10px;
-    background-color: #09b6a2;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
+    background-color: #fff;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
 }
 
-button:hover {
-    background-color: #18c7b2;
-}
-
-/* Navigation Links Styles */
-.create-post-btn, .settings-link, .logout-link {
-    display: inline-flex;
+.header-content {
+    display: flex;
     align-items: center;
-    padding: 8px 16px;
-    color: white;
+    justify-content: space-between;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 10px 20px;
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: bold;
+    color: #09b6a2;
     text-decoration: none;
-    font-size: 14px;
+}
+
+.search-bar input {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
     border-radius: 20px;
-    transition: background-color 0.3s ease;
-    gap: 8px;
+    font-size: 14px;
+    width: 200px;
 }
 
-.create-post-btn, .logout-link {
-    background-color: #09b6a2;
-}
-
-.create-post-btn:hover {
-    background-color: #18c7b2;
-}
-
-.logout-link:hover {
-    background-color: #18c7b2;
-}
-
-.settings-link {
-    background-color: #1a1a1a;
-}
-
-.settings-link:hover {
-    background-color: #333;
-}
-
-/* Icon alignment */
-.create-post-btn i, .settings-link i, .logout-link i {
-    width: 16px;
-    height: 16px;
-}
-
-/* Nav links container */
 .nav-links {
     display: flex;
     align-items: center;
     gap: 15px;
 }
 
-/* User menu styling */
-.user-menu {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+.create-post-btn {
+    background-color: #09b6a2;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
 }
 
-/* Modal styles */
-.modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 1000;
-    overflow-y: auto;
+.create-post-btn:hover {
+    background-color: #18c7b2;
 }
 
-.modal-content {
-    background-color: #fff;
-    margin: 20px auto;
+/* Main Content Styles */
+.main-content {
+    /* margin-left: 250px; Adjust based on sidebar width */
     padding: 20px;
-    width: 90%;
-    max-width: 600px;
+    /* margin-top: 80px; Adjust based on header height */
+    width: 100%;
+    max-width: 900px;
+    margin: 80px auto;
+}
+
+/* Create Post Form Styles */
+#createPostFormContainer {
+    background-color: #fff;
+    padding: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    position: relative;
-}
-
-.modal-header {
-    position: sticky;
-    top: 0;
-    background-color: #fff;
-    z-index: 1001;
-    padding: 15px 0;
     margin-bottom: 20px;
-    border-bottom: 1px solid #eee;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
 }
 
-.close {
-    color: #aaa;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-.close:hover {
+#createPostFormContainer h2 {
+    margin-top: 0;
     color: #333;
 }
 
-.modal-body {
-    max-height: calc(100vh - 200px);
-    overflow-y: auto;
-    padding-right: 10px;
-}
-
-/* Customize scrollbar */
-.modal-body::-webkit-scrollbar {
-    width: 8px;
-}
-
-.modal-body::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 4px;
-}
-
-.modal-body::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 4px;
-}
-
-.modal-body::-webkit-scrollbar-thumb:hover {
-    background: #555;
-}
-
-/* Form styles */
 .form-group {
     margin-bottom: 20px;
-    padding: 0 5px;
 }
 
 .form-group label {
@@ -204,12 +126,6 @@ button:hover {
 }
 
 .form-actions {
-    position: sticky;
-    bottom: 0;
-    background-color: #fff;
-    padding: 15px 0;
-    margin-top: 20px;
-    border-top: 1px solid #eee;
     display: flex;
     justify-content: flex-end;
     gap: 10px;
@@ -239,46 +155,26 @@ button:hover {
     background-color: #18c7b2;
 }
 
-/* Responsive adjustments */
-@media (max-height: 600px) {
-    .modal-content {
-        margin: 10px auto;
-    }
-    
-    .modal-body {
-        max-height: calc(100vh - 150px);
-    }
-}
-
-@media (max-width: 480px) {
-    .modal-content {
-        width: 95%;
-        margin: 10px auto;
-    }
-    
-    .form-actions {
-        padding: 10px 0;
-    }
-}
-
-/* Add these styles for the sidebar footer */
+/* Sidebar Styles */
 .sidebar {
-    position: relative;
-    min-height: calc(100vh - 60px); /* Adjust based on your header height */
-    padding: 20px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 250px;
+    height: 100vh;
     background-color: #f8f9fa;
     border-right: 1px solid #eee;
-    display: flex;
-    flex-direction: column;
+    padding-top: 80px; /* Adjust based on header height */
+    overflow-y: auto;
 }
 
 .sidebar-section {
-    flex-grow: 1;
+    padding: 20px;
 }
 
 .sidebar-footer {
     margin-top: auto;
-    padding-top: 20px;
+    padding: 20px;
     border-top: 1px solid #eee;
 }
 
@@ -293,68 +189,19 @@ button:hover {
     transition: background-color 0.3s ease;
 }
 
-.sidebar-link i {
-    width: 18px;
-    height: 18px;
-    margin-right: 12px;
-}
-
 .sidebar-link:hover {
     background-color: #f0f0f0;
 }
 
 .logout-link {
     color: #09b6a2;
-    color: white;
 }
 
 .logout-link:hover {
     background-color: #18c7b2;
+    color: white;
 }
 
-/* Update container and sidebar layout */
-.container {
-    display: flex;
-    margin-top: 60px; /* Adjust based on your header height */
-}
-
-.sidebar {
-    width: 250px;
-    position: fixed;
-    left: 0;
-    top: 0; /* Should match margin-top of container */
-    bottom: 0;
-    padding-top: 100px;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .sidebar {
-        width: 200px;
-    }
-    
-    .sidebar-link {
-        padding: 10px 12px;
-        font-size: 14px;
-    }
-}
-
-@media (max-width: 576px) {
-    .sidebar {
-        position: fixed;
-        left: -250px;
-        transition: left 0.3s ease;
-        z-index: 1000;
-        background: white;
-        box-shadow: 2px 0 5px rgba(0,0,0,0.1);
-    }
-
-    .sidebar.active {
-        left: 0;
-    }
-}
-
-/* Update category list styles */
 .category-list {
     list-style: none;
     padding: 0;
@@ -369,4 +216,43 @@ button:hover {
 .category-list .sidebar-link {
     padding: 8px 16px;
     margin-bottom: 2px;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 200px;
+    }
+
+    .main-content {
+        margin-left: 200px;
+    }
+}
+
+@media (max-width: 576px) {
+    .sidebar {
+        position: fixed;
+        left: -250px;
+        transition: left 0.3s ease;
+        z-index: 1000;
+        background: white;
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .sidebar.active {
+        left: 0;
+    }
+
+    .main-content {
+        margin-left: 0;
+        padding: 10px;
+    }
+
+    .header-content {
+        padding: 10px;
+    }
+
+    .search-bar input {
+        width: 150px;
+    }
 }

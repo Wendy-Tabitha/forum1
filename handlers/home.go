@@ -71,7 +71,6 @@ func init() {
 
 func CreateTables() {
 	queries := []string{
-		`DROP TABLE IF EXISTS users;`,
 		`CREATE TABLE IF NOT EXISTS users (
 			id TEXT PRIMARY KEY,
 			email TEXT UNIQUE NOT NULL,

@@ -9,7 +9,7 @@ import (
 
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
-	_ "github.com/mattn/go-sqlite3"
+	_ "modernc.org/sqlite"
 )
 
 // var (
@@ -20,7 +20,7 @@ import (
 func init() {
 	// Initialize database connection
 	var err error
-	db, err = sql.Open("sqlite3", "./forum.db")
+	db, err = sql.Open("sqlite", "./forum.db")
 	if err != nil {
 		log.Fatal("Database connection error:", err)
 	}
@@ -30,14 +30,20 @@ func init() {
 		log.Fatal("Database ping error:", err)
 	}
 
-	// Create users table if not exists
+	// Drop existing users table and recreate with correct schema
+	_, err = db.Exec(`DROP TABLE IF EXISTS users`)
+	if err != nil {
+		log.Fatal("Error dropping users table:", err)
+	}
+
+	// Create users table with email column
 	_, err = db.Exec(`
 		CREATE TABLE IF NOT EXISTS users (
 			id TEXT PRIMARY KEY,
 			email TEXT UNIQUE NOT NULL,
 			username TEXT UNIQUE NOT NULL,
 			password TEXT NOT NULL,
-			created_at DATETIME
+			created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 		)
 	`)
 	if err != nil {
@@ -57,7 +63,7 @@ func init() {
 		log.Fatal("Sessions table creation error:", err)
 	}
 
-	// Parse templates - with error handling
+	// Parse templates
 	templates, err = template.ParseGlob("templates/*.html")
 	if err != nil {
 		log.Fatal("Template parsing error:", err)

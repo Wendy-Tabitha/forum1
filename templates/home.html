@@ -7,13 +7,29 @@
         <div class="sidebar-section">
             <h3>Categories</h3>
             <ul class="category-list">
-                {{range .Categories}}
-                <li><a href="/c/{{.Name}}" class="sidebar-link">
-                    {{.Name}}
-                </a></li>
-                {{end}}
+                <li><a href="/c/general" class="sidebar-link">General</a></li>
+                <li><a href="/c/technology" class="sidebar-link">Technology</a></li>
+                <li><a href="/c/lifestyle" class="sidebar-link">Lifestyle</a></li>
+                <li><a href="/c/entertainment" class="sidebar-link">Entertainment</a></li>
+                <li><a href="/c/gaming" class="sidebar-link">Gaming</a></li>
+                <li><a href="/c/food" class="sidebar-link">Food</a></li>
+                <li><a href="/c/business" class="sidebar-link">Business</a></li>
+                <li><a href="/c/health" class="sidebar-link">Health</a></li>
+                <li><a href="/c/religion" class="sidebar-link">Religion</a></li>
             </ul>
         </div>
+    </div>
+    
+    <div class="main-content">
+        {{range .Posts}}
+        <div class="post">
+            <h2>{{.Title}}</h2>
+            <p>{{.Content}}</p>
+            <div class="post-meta">
+                <span>Posted by {{.Username}}</span>
+            </div>
+        </div>
+        {{end}}
     </div>
 </div>
 {{end}}

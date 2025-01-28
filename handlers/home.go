@@ -3,7 +3,6 @@ package handlers
 import (
 	"database/sql"
 	"html/template"
-	htmltemplate "html/template"
 	"log"
 	"net/http"
 	"strings"
@@ -57,16 +56,25 @@ func init() {
 
 	// Create tables if they don't exist
 	CreateTables()
-	// Parse templates
-	templates = htmltemplate.New("").Funcs(template.FuncMap{
+
+	// Create function map first
+	funcMap := template.FuncMap{
 		"formatTime": func(t time.Time) string {
 			return t.Format("Jan 02, 2006")
 		},
-	})
-	templates = htmltemplate.Must(templates.ParseGlob("templates/*.html"))
+	}
 
-	// Insert default categories if they don't exist
-	insertDefaultCategories()
+	// Initialize templates with function map
+	templates = template.New("")
+
+	// Add the function map to templates
+	templates = templates.Funcs(funcMap)
+
+	// Parse templates after adding function map
+	templates, err = templates.ParseGlob("templates/*.html")
+	if err != nil {
+		log.Fatal("Template parsing error:", err)
+	}
 }
 
 func CreateTables() {
@@ -121,19 +129,6 @@ func CreateTables() {
 			FOREIGN KEY (user_id) REFERENCES users(id),
 			FOREIGN KEY (comment_id) REFERENCES comments(id)
 		)`,
-		`CREATE TABLE IF NOT EXISTS categories (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			name TEXT UNIQUE NOT NULL,
-			description TEXT,
-			color TEXT
-		)`,
-		`CREATE TABLE IF NOT EXISTS post_categories (
-			post_id INTEGER NOT NULL,
-			category_id INTEGER NOT NULL,
-			PRIMARY KEY (post_id, category_id),
-			FOREIGN KEY (post_id) REFERENCES posts(id),
-			FOREIGN KEY (category_id) REFERENCES categories(id)
-		)`,
 	}
 
 	for _, query := range queries {
@@ -145,45 +140,13 @@ func CreateTables() {
 	}
 }
 
-func insertDefaultCategories() {
-	categories := []struct {
-		name        string
-		description string
-		color       string
-	}{
-		{"Technology", "Discussion about latest tech trends and innovations", "#3498db"},
-		{"Science", "Scientific discoveries and research", "#2ecc71"},
-		{"Entertainment", "Movies, TV shows, and pop culture", "#e74c3c"},
-		{"Gaming", "Video games and gaming culture", "#9b59b6"},
-		{"Art", "Visual arts, music, and creative works", "#e67e22"},
-	}
-
-	for _, cat := range categories {
-		_, err := db.Exec(`
-			INSERT OR IGNORE INTO categories (name, description, color)
-			VALUES (?, ?, ?)
-		`, cat.name, cat.description, cat.color)
-		if err != nil {
-			log.Printf("Error inserting category %s: %v", cat.name, err)
-		}
-	}
-}
-
 func HomeHandler(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
 		http.NotFound(w, r)
 		return
 	}
 
-	// Fetch categories with post counts
-	categories, err := GetCategories()
-	if err != nil {
-		log.Printf("Error fetching categories: %v", err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
-
-	// Fetch recent posts with their categories
+	// Fetch recent posts
 	posts, err := GetRecentPosts()
 	if err != nil {
 		log.Printf("Error fetching posts: %v", err)
@@ -192,14 +155,12 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := PageData{
-		Categories: categories,
-		Posts:      posts,
+		Posts: posts,
 	}
 
 	err = templates.ExecuteTemplate(w, "layout.html", data)
 	if err != nil {
 		log.Printf("Template execution error: %v", err)
-		// http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 }

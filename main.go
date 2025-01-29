@@ -24,9 +24,19 @@ func main() {
 	http.HandleFunc("/login", handlers.LoginHandler)
 	http.HandleFunc("/register", handlers.RegisterHandler)
 	http.HandleFunc("/logout", handlers.LogoutHandler)
-	// http.HandleFunc("/post/", handlers.PostHandler)
 	http.HandleFunc("/user", handlers.UserHandler)
-	// http.HandleFunc("/comment/", handlers.CommentHandler)
+
+	// Update the posts route
+	http.HandleFunc("/api/posts", func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodPost:
+			handlers.CreatePostHandler(w, r)
+		case http.MethodGet:
+			handlers.GetPostsHandler(w, r)
+		default:
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		}
+	})
 
 	// Start the server
 	port := ":8082"

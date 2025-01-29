@@ -1,0 +1,160 @@
+{{define "post"}}
+<div class="post" data-post-id="{{.ID}}">
+    <div class="post-header">
+        <h2 class="post-title">{{.Title}}</h2>
+        <span class="post-author">Posted by {{.Username}}</span>
+    </div>
+    
+    <div class="post-content">
+        {{if .Image}}
+            <img src="{{.Image}}" alt="Post image" class="post-image">
+        {{end}}
+        <p class="post-text">{{.Content}}</p>
+    </div>
+    
+    <div class="post-actions">
+        <div class="vote-buttons">
+            <button class="upvote-btn {{if .UserVoted}}voted{{end}}" onclick="votePost('{{.ID}}', 1)">
+                <span class="vote-count">{{.Score}}</span> ▲
+            </button>
+            <button class="downvote-btn {{if .UserDownvoted}}voted{{end}}" onclick="votePost('{{.ID}}', -1)">
+                ▼
+            </button>
+        </div>
+        
+        <button class="comment-btn" onclick="showCommentForm('{{.ID}}')">
+            <span class="comment-count">{{.CommentCount}}</span> Comments
+        </button>
+    </div>
+
+    <!-- Comment Form (Initially Hidden) -->
+    <div id="commentForm-{{.ID}}" class="comment-form" style="display: none;">
+        <textarea placeholder="Write a comment..." required></textarea>
+        <button onclick="submitComment('{{.ID}}')">Submit Comment</button>
+    </div>
+
+    <!-- Comments Section -->
+    <div class="comments-section" id="comments-{{.ID}}">
+        {{range .Comments}}
+        <div class="comment">
+            <div class="comment-header">
+                <span class="comment-author">{{.Username}}</span>
+            </div>
+            <p class="comment-content">{{.Content}}</p>
+        </div>
+        {{end}}
+    </div>
+</div>
+
+<form id="postForm" class="post-form">
+    <input type="text" name="title" placeholder="Title" required>
+    <textarea name="content" placeholder="Write your post..." required></textarea>
+    <button type="submit" class="submit-btn">Post</button>
+</form>
+
+<script>
+function votePost(postId, value) {
+    fetch(`/api/posts/${postId}/vote`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ value: value }),
+        credentials: 'include'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update the vote count display
+            const voteCount = document.querySelector(`[data-post-id="${postId}"] .vote-count`);
+            voteCount.textContent = data.newScore;
+            
+            // Update vote button styles
+            const upvoteBtn = document.querySelector(`[data-post-id="${postId}"] .upvote-btn`);
+            const downvoteBtn = document.querySelector(`[data-post-id="${postId}"] .downvote-btn`);
+            upvoteBtn.classList.toggle('voted', data.userVoted);
+            downvoteBtn.classList.toggle('voted', data.userDownvoted);
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+function showCommentForm(postId) {
+    const form = document.getElementById(`commentForm-${postId}`);
+    form.style.display = form.style.display === 'none' ? 'block' : 'none';
+}
+
+function submitComment(postId) {
+    const form = document.getElementById(`commentForm-${postId}`);
+    const content = form.querySelector('textarea').value;
+    
+    fetch(`/api/posts/${postId}/comments`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ content: content }),
+        credentials: 'include'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Add the new comment to the comments section
+            const commentsSection = document.getElementById(`comments-${postId}`);
+            const newComment = document.createElement('div');
+            newComment.className = 'comment';
+            newComment.innerHTML = `
+                <div class="comment-header">
+                    <span class="comment-author">${data.comment.username}</span>
+                    <span class="comment-time">Just now</span>
+                </div>
+                <p class="comment-content">${data.comment.content}</p>
+            `;
+            commentsSection.insertBefore(newComment, commentsSection.firstChild);
+            
+            // Clear and hide the comment form
+            form.querySelector('textarea').value = '';
+            form.style.display = 'none';
+            
+            // Update comment count
+            const commentCount = document.querySelector(`[data-post-id="${postId}"] .comment-count`);
+            commentCount.textContent = parseInt(commentCount.textContent) + 1;
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+document.getElementById('postForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    
+    fetch('/api/posts', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams(formData),
+        credentials: 'include'
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            window.location.reload();
+        } else {
+            console.error('Server error:', data);
+            alert('Failed to create post');
+        }
+    })
+    .catch(error => {
+        console.error('Submission error:', error);
+        alert('Failed to create post: ' + error.message);
+    });
+});
+</script>
+{{end}} 

@@ -9,7 +9,7 @@ import (
 
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
-	_ "modernc.org/sqlite"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 // var (
@@ -20,7 +20,7 @@ import (
 func init() {
 	// Initialize database connection
 	var err error
-	db, err = sql.Open("sqlite", "./forum.db")
+	db, err = sql.Open("sqlite3", "./forum.db")
 	if err != nil {
 		log.Fatal("Database connection error:", err)
 	}

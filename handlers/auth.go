@@ -12,11 +12,6 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-// var (
-// 	db        *sql.DB
-// 	templates *template.Template
-// )
-
 func init() {
 	// Initialize database connection
 	var err error
@@ -30,7 +25,13 @@ func init() {
 		log.Fatal("Database ping error:", err)
 	}
 
-	// Only create tables if they don't exist
+	// Drop existing users table and recreate with correct schema
+	_, err = db.Exec(`DROP TABLE IF EXISTS users`)
+	if err != nil {
+		log.Fatal("Error dropping users table:", err)
+	}
+
+	// Create users table with email column
 	_, err = db.Exec(`
 		CREATE TABLE IF NOT EXISTS users (
 			id TEXT PRIMARY KEY,

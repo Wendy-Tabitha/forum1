@@ -25,11 +25,11 @@ func init() {
 		log.Fatal("Database ping error:", err)
 	}
 
-	// Drop existing users table and recreate with correct schema
-	_, err = db.Exec(`DROP TABLE IF EXISTS users`)
-	if err != nil {
-		log.Fatal("Error dropping users table:", err)
-	}
+	// // Drop existing users table and recreate with correct schema
+	// _, err = db.Exec(`DROP TABLE IF EXISTS users`)
+	// if err != nil {
+	// 	log.Fatal("Error dropping users table:", err)
+	// }
 
 	// Create users table with email column
 	_, err = db.Exec(`

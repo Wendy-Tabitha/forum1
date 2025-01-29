@@ -127,28 +127,43 @@
         });
 
         // Form submission
-        document.getElementById('createPostForm').addEventListener('submit', async function(e) {
+        document.getElementById('createPostForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
-            const formData = new FormData(this);
+            const title = document.getElementById('title').value;
+            const content = document.getElementById('content').value;
             
-            try {
-                const response = await fetch('/posts/create', {
-                    method: 'POST',
-                    body: formData
-                });
-                
-                if (response.ok) {
-                    // Hide form and refresh page to show new post
-                    hideCreatePostForm();
-                    window.location.href = '/';
-                } else {
-                    throw new Error('Failed to create post');
+            fetch('/api/posts', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    title: title,
+                    content: content
+                }),
+                credentials: 'include'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
                 }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Failed to create post. Please try again.');
-            }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    hideCreatePostForm();
+                    // Refresh the page to show the new post
+                    window.location.reload();
+                } else {
+                    console.error('Server error:', data);
+                    alert('Failed to create post');
+                }
+            })
+            .catch(error => {
+                console.error('Submission error:', error);
+                alert('Failed to create post: ' + error.message);
+            });
         });
     </script>
 </body>
